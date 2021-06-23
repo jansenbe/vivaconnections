@@ -1,0 +1,2 @@
+﻿Get claims from used access token:
+https://levelup.gitconnected.com/four-alternative-methods-to-get-user-identity-and-claims-in-a-net-azure-functions-app-df98c40424bb
