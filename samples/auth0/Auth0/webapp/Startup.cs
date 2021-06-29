@@ -61,6 +61,18 @@ namespace SampleMvcApp
 
                 options.Events = new OpenIdConnectEvents
                 {
+                    OnRedirectToIdentityProvider = context =>
+                    {
+                        // The context's ProtocolMessage can be used to pass along additional query parameters
+                        // to Auth0's /authorize endpoint.
+                        // 
+                        // Set the audience query parameter to the API identifier to ensure the returned Access Tokens can be used
+                        // to call protected endpoints on the corresponding API.
+                        context.ProtocolMessage.SetParameter("audience", Configuration["Auth0:Audience"]);
+
+                        return Task.FromResult(0);
+                    },
+
                     // handle the logout redirection 
                     OnRedirectToIdentityProviderForSignOut = (context) =>
                     {
@@ -76,14 +88,7 @@ namespace SampleMvcApp
                                 postLogoutUri = request.Scheme + "://" + request.Host + request.PathBase + postLogoutUri;
                             }
                             logoutUri += $"&returnTo={ Uri.EscapeDataString(postLogoutUri)}";
-                        }
-
-                        // The context's ProtocolMessage can be used to pass along additional query parameters
-                        // to Auth0's /authorize endpoint.
-                        // 
-                        // Set the audience query parameter to the API identifier to ensure the returned Access Tokens can be used
-                        // to call protected endpoints on the corresponding API.
-                        context.ProtocolMessage.SetParameter("audience", Configuration["Auth0:Audience"]);
+                        }                        
 
                         context.Response.Redirect(logoutUri);
                         context.HandleResponse();

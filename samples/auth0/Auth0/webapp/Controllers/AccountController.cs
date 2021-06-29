@@ -5,7 +5,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using RestSharp;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -56,7 +58,7 @@ namespace SampleMvcApp.Controllers
 
             if (User.Identity.IsAuthenticated)
             {
-                /*
+                
                 string accessToken = await HttpContext.GetTokenAsync("access_token");
 
                 // if you need to check the Access Token expiration time, use this value
@@ -67,28 +69,28 @@ namespace SampleMvcApp.Controllers
                     CultureInfo.InvariantCulture,
                     DateTimeStyles.RoundtripKind);
 
-                string idToken = await HttpContext.GetTokenAsync("accessToken");
+                //string idToken = await HttpContext.GetTokenAsync("accessToken");
 
                 // Now you can use them. For more info on when and how to use the
                 // Access Token and ID Token, see https://auth0.com/docs/tokens
-                */
+                
 
+                // Alternative method to obtain an access token server side
+                //var client = new RestClient("https://bertonline.eu.auth0.com/oauth/token");
+                //var request = new RestRequest(Method.POST);
+                //request.AddHeader("content-type", "application/json");
+                //request.AddParameter("application/json", $"{{\"client_id\":\"{Configuration["Auth0:ClientId"]}\",\"client_secret\":\"{Configuration["Auth0:ClientSecret"]}\",\"audience\":\"{Configuration["Auth0:Audience"]}\",\"grant_type\":\"client_credentials\"}}", ParameterType.RequestBody);
+                //IRestResponse response = await client.ExecuteAsync(request);
 
-                var client = new RestClient("https://bertonline.eu.auth0.com/oauth/token");
-                var request = new RestRequest(Method.POST);
-                request.AddHeader("content-type", "application/json");
-                request.AddParameter("application/json", $"{{\"client_id\":\"{Configuration["Auth0:ClientId"]}\",\"client_secret\":\"{Configuration["Auth0:ClientSecret"]}\",\"audience\":\"{Configuration["Auth0:Audience"]}\",\"grant_type\":\"client_credentials\"}}", ParameterType.RequestBody);
-                IRestResponse response = await client.ExecuteAsync(request);
-
-                var json = JsonSerializer.Deserialize<JsonElement>(response.Content);
-                string accessToken = json.GetProperty("access_token").GetString();
+                //var json = JsonSerializer.Deserialize<JsonElement>(response.Content);
+                //string accessToken = json.GetProperty("access_token").GetString();
 
                 //string accessToken = await HttpContext.GetTokenAsync("access_token");
 
-                client = new RestClient($"{Configuration["Products:API"]}");
-                request = new RestRequest(Method.GET);
+                var client = new RestClient($"{Configuration["Products:API"]}");
+                var request = new RestRequest(Method.GET);
                 request.AddHeader("authorization", $"Bearer {accessToken}");
-                response = await client.ExecuteAsync(request);
+                var response = await client.ExecuteAsync(request);
                 
                 var orders = JsonSerializer.Deserialize<List<Order>>(response.Content, new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 
