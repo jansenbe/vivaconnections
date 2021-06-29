@@ -1,0 +1,33 @@
+﻿@using Common
+@model List<Common.Order>
+
+<div class="row">
+    <div class="col-md-12">
+
+        <h3>Call the secure Orders API </h3>
+        <p>This page calls the secure order API to retrieve and display order information.</p>
+
+        <table>
+            <tr>
+                <td>Id</td>
+                <td>Order date</td>
+                <td>Item</td>
+                <td>Rep</td>
+                <td>Quantity</td>
+                <td>Amount</td>
+            </tr>
+            @foreach (Order item in Model)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.OrderDate.ToShortDateString()</td>
+                    <td>@item.Item</td>
+                    <td>@item.Rep</td>
+                    <td>@item.Units</td>
+                    <td>@item.Total</td>
+                </tr>
+            }
+        </table>
+
+    </div>
+</div>
