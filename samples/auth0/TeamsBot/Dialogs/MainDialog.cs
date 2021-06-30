@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
@@ -92,14 +93,17 @@ namespace Microsoft.BotBuilderSamples
 
                 using (var tokenCacheContext = new TokenCacheContext(Configuration))
                 {
+                    DateTime expiration = new JWTService().GetExpiryTimestamp(tokenResponse.Token);
+
                     var existingCache = await tokenCacheContext.TokenCaches.FirstOrDefaultAsync(p => p.Upn == member.UserPrincipalName);
                     if (existingCache != null)
                     {
                         existingCache.AccessToken = tokenResponse.Token;
+                        existingCache.ExpirationTime = expiration;
                     }
                     else
                     {
-                        await tokenCacheContext.TokenCaches.AddAsync(new TokenCache() { Upn = member.UserPrincipalName, AccessToken = tokenResponse.Token });
+                        await tokenCacheContext.TokenCaches.AddAsync(new TokenCache() { Upn = member.UserPrincipalName, AccessToken = tokenResponse.Token, ExpirationTime = expiration });
                     }
                     await tokenCacheContext.SaveChangesAsync();
                 }
