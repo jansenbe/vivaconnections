@@ -17,17 +17,33 @@ export class CardView extends BasePrimaryTextCardView<ICallingHomeAdaptiveCardEx
     // Only show the quickview button based upon the license check status
     if (this.state.licensed){
       
-      // User is licensed
-      buttons.push(
-        {
-          title: strings.QuickViewButton,
-          action: {
-            type: 'QuickView',            
-            parameters: {
-              view: QUICK_VIEW_REGISTRY_ID
+      if (this.state.authenticated) {
+        // User is licensed and authenticated
+        buttons.push(
+          {
+            title: strings.QuickViewButton,
+            action: {
+              type: 'QuickView',            
+              parameters: {
+                view: QUICK_VIEW_REGISTRY_ID
+              }
             }
-          }
-        });
+          });
+      }
+      else {
+        // User is licensed but still needs to authenticate
+        buttons.push(
+          {
+            title: 'Authenticate',
+            action: {
+              type: 'ExternalLink',            
+              parameters: {
+                isTeamsDeepLink: true,
+                target: 'https://teams.microsoft.com/l/entity/9cd2aadc-f6be-4029-89ca-4b8a999ff9bd/0'
+              }
+            }
+          });
+      }
     }
     else {
 

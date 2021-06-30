@@ -19,7 +19,7 @@
     "group": { "default": "Dashboard" },
     "title": { "default": "CallingHome" },
     "description": { "default": "Checking licenses..." },
-    "officeFabricIconFontName": "SharePointLogo",
+    "iconImageUrl": "https://image.flaticon.com/icons/png/512/747/747055.png",
     "properties": {
       "title": "CallingHome",
       "description": "Checking licenses...",

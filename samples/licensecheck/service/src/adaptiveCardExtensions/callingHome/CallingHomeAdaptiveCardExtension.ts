@@ -4,7 +4,7 @@ import { CardView } from './cardView/CardView';
 import { QuickView } from './quickView/QuickView';
 import { DetailedQuickView } from './quickView/DetailedQuickView';
 import { CallingHomePropertyPane } from './CallingHomePropertyPane';
-import { AadHttpClient, HttpClientResponse } from '@microsoft/sp-http';
+import { AadHttpClient, HttpClientResponse, HttpClient, IHttpClientOptions } from '@microsoft/sp-http';
 import * as strings from 'CallingHomeAdaptiveCardExtensionStrings';
 import { Tokens } from './services/Tokens';
 
@@ -22,6 +22,7 @@ export interface ICallingHomeAdaptiveCardExtensionState {
   currentIndex: number;
   processing: boolean;
   licensed: boolean;
+  authenticated: boolean;
 }
 
 export interface IOrder {
@@ -53,6 +54,7 @@ export default class CallingHomeAdaptiveCardExtension extends BaseAdaptiveCardEx
       currentIndex: 0,
       processing: false,
       licensed: false,
+      authenticated : false,
     };
 
     this.cardNavigator.register(CARD_VIEW_REGISTRY_ID, () => new CardView());
@@ -107,7 +109,8 @@ export default class CallingHomeAdaptiveCardExtension extends BaseAdaptiveCardEx
         this.setState({
           apiCallResults : [], 
           description : strings.NotLicensed, 
-          licensed : false
+          licensed : false,
+          authenticated: false,
         });
 
         const resp = await res.text();
@@ -126,24 +129,37 @@ export default class CallingHomeAdaptiveCardExtension extends BaseAdaptiveCardEx
 
         if (randomBoolean) {
 
-          // Option: Cache the received access token for future reuse
-          const tokens = Tokens.getInstance();
-          tokens.setAccessToken(jsonResponse.AccessToken);
+          if(jsonResponse.AccessToken !== null && jsonResponse.AccessToken !== '') {
 
-          // Call XYZ API to retrieve needed data
-          await this.getOrders(jsonResponse.AccessToken);
+            // Option: Cache the received access token for future reuse
+            const tokens = Tokens.getInstance();
+            tokens.setAccessToken(jsonResponse.AccessToken);
 
-          // Licensed: Store the json in the card state
-          this.setState({
-            description : strings.Licensed, 
-            licensed : true
-          });
+            // Call XYZ API to retrieve needed data
+            await this.getOrders(jsonResponse.AccessToken);
+
+            // Licensed: Store the json in the card state
+            this.setState({
+              description : strings.Licensed, 
+              licensed : true,
+              authenticated: true,
+            });
+          }
+          else {
+             // Licensed: Store the json in the card state
+            this.setState({
+              description : "Please authenticate first", 
+              licensed : true,
+              authenticated : false,
+            });           
+          }
         }
         else {
           // Unlicensed: Store the json in the card state
           this.setState({
             description : strings.NotLicensed, 
-            licensed : false
+            licensed : false,
+            authenticated: false,
           });
         }
       }
@@ -157,14 +173,30 @@ export default class CallingHomeAdaptiveCardExtension extends BaseAdaptiveCardEx
   
   private async getOrders(accessToken: string): Promise<void> {
     try {
-      // Instantiate aad http client for the AAD application we've created
-      const client = await this.context.aadHttpClientFactory.getClient(this.properties.appId);
-      // Build the request to call the API
-      const reqUrl = (new URL("/api/Orders", this.properties.apiAbsUrl)).toString();
-      // Make the API call
-      const res: HttpClientResponse = await client.post(reqUrl, AadHttpClient.configurations.v1, {  
-        body: JSON.stringify({ accessToken : accessToken})    
-      });
+      // // Instantiate aad http client for the AAD application we've created
+      // const client = await this.context.aadHttpClientFactory.getClient(this.properties.appId);
+      // // Build the request to call the API
+      // const reqUrl = (new URL("/api/Orders", this.properties.apiAbsUrl)).toString();
+      // // Make the API call
+      // const res: HttpClientResponse = await client.post(reqUrl, AadHttpClient.configurations.v1, {  
+      //   body: JSON.stringify({ accessToken : accessToken})    
+      // });
+      // NOTE: update to jsonResponse.items.map(...) when using the Azure AD secured service
+
+
+      // Call an auth0 secured service
+      const requestHeaders: Headers = new Headers();  
+      requestHeaders.append('Content-type', 'application/json');  
+      requestHeaders.append('Cache-Control', 'no-cache');  
+      //For an OAuth token  
+      requestHeaders.append('Authorization', 'Bearer ' + accessToken);  
+  
+      const httpClientOptions: IHttpClientOptions = {  
+        headers: requestHeaders,
+      };  
+
+      const reqUrl = (new URL("/api/private",  "https://auth0webapi.azurewebsites.net")).toString();
+      const res: HttpClientResponse = await this.context.httpClient.get(reqUrl, HttpClient.configurations.v1, httpClientOptions);
 
       // Process API call response
       if (!res.ok) {
@@ -178,7 +210,7 @@ export default class CallingHomeAdaptiveCardExtension extends BaseAdaptiveCardEx
 
         const jsonResponse = await res.json();
 
-        const items = jsonResponse.items.map((item: any) => { 
+        const items = jsonResponse.map((item: any) => { 
           return { id: item.id, 
                    orderDate : item.orderDate,                   
                    region: item.region,
