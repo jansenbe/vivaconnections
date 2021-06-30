@@ -1,0 +1,33 @@
+{
+  "type": "AdaptiveCard",
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "version": "1.3",
+  "body": [
+    {
+      "type": "Container",
+      "separator": true,
+      "$data": "${items}",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "${item}",
+          "wrap": true,
+          "color": "Dark",
+          "weight": "Bolder",
+          "size": "Large",
+          "maxLines": 1,
+          "spacing": "None"
+        },
+        {
+          "type": "TextBlock",
+          "text": "${rep} - ${region} - ${total} $",
+          "wrap": true,
+          "color": "Dark",
+          "size": "Medium",
+          "maxLines": 1,
+          "spacing": "None"
+        }
+      ]
+    }
+  ]
+}

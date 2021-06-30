@@ -1,0 +1,50 @@
+{
+  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.7/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.7",
+  "version": "1.0.0",
+  "id": "a45f93f9-a34f-4d36-9dc2-348ab8484e83",
+  "packageName": "com.microsoft.teams.samples",
+  "developer": {
+    "name": "Microsoft",
+    "websiteUrl": "https://example.azurewebsites.net",
+    "privacyUrl": "https://example.azurewebsites.net/privacy",
+    "termsOfUseUrl": "https://example.azurewebsites.net/termsofuse"
+  },
+  "icons": {
+    "color": "icon-color.png",
+    "outline": "icon-outline.png"
+  },
+  "name": {
+    "short": "Teams Auth0",
+    "full": "Teams Auth0 Single Sign On Sample"
+  },
+  "description": {
+    "short": "Teams Auth0 sample",
+    "full": "This is a bot for testing Auth0 Single Sign on for Teams"
+  },
+  "accentColor": "#FFFFFF",
+  "bots": [
+    {
+      "botId": "a45f93f9-a34f-4d36-9dc2-348ab8484e83",
+      "scopes": [
+        "personal",
+        "team",
+        "groupchat"
+      ],
+      "supportsFiles": false,
+      "isNotificationOnly": false
+    }
+  ],
+  "webApplicationInfo": {
+    "id": "a45f93f9-a34f-4d36-9dc2-348ab8484e83",
+    "resource": "api://botid-a45f93f9-a34f-4d36-9dc2-348ab8484e83/test"
+  },
+  "permissions": [
+    "identity",
+    "messageTeamMembers"
+  ],
+  "validDomains": [
+    "token.botframework.com",
+    "ngrok.io"
+  ]
+}
