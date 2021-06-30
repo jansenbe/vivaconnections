@@ -8,13 +8,22 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 
 namespace services
 {
-    public static class LicenseCheck
+    public class LicenseCheck
     {
+
+        private readonly TokenCacheContext TokenCacheContext;
+
+        public LicenseCheck(TokenCacheContext tokenCacheContext)
+        {
+            TokenCacheContext = tokenCacheContext;
+        }
+
         [FunctionName("LicenseCheck")]
-        public static async Task<IActionResult> Run(
+        public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
             ILogger log, ClaimsPrincipal claimIdentity)
         {
@@ -36,10 +45,25 @@ namespace services
             var random = new Random();
             var randomBool = random.Next(2) == 1;
 
+            // check if there's an access token for this user
+            var auth0AccessToken = await TokenCacheContext.TokenCaches.FirstOrDefaultAsync(p => p.Upn == claimIdentity.Identity.Name.ToLower());
+
+            string accessToken = $"";
+
+            if (auth0AccessToken != null)
+            {
+                log.LogInformation($"Access token retrieved. Expires at {auth0AccessToken.ExpirationTime}, value: {auth0AccessToken.AccessToken}");
+                if (auth0AccessToken.ExpirationTime > DateTime.Now)
+                {
+                    log.LogInformation("Access token can be used!");
+                    accessToken = auth0AccessToken.AccessToken;
+                }
+            }
+
             var jsonResponse = JsonSerializer.Serialize(new LicenseInfo()
             {
                 IsLicensed = randomBool,
-                AccessToken = $"Randomstringactingastoken{new Random().Next(1, 10000)}"
+                AccessToken = accessToken
             });
 
             log.LogInformation(jsonResponse);
