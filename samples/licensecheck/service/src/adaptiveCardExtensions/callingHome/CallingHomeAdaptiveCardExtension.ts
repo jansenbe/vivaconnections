@@ -14,6 +14,7 @@ export interface ICallingHomeAdaptiveCardExtensionProps {
   iconProperty: string;
   apiAbsUrl: string;
   appId: string;
+  randomLicensed: boolean;
 }
 
 export interface ICallingHomeAdaptiveCardExtensionState {
@@ -85,6 +86,7 @@ export default class CallingHomeAdaptiveCardExtension extends BaseAdaptiveCardEx
       const reqUrl = (new URL("/api/licensecheck", this.properties.apiAbsUrl)).toString();
       
       // Make the API call, send information about the current user, site and tenant
+      this.setState({ description : "Calling license api..."});
       const res: HttpClientResponse = await client.post(reqUrl, AadHttpClient.configurations.v1, {      
         body: JSON.stringify({
           user: this.context.pageContext.user,
@@ -122,10 +124,14 @@ export default class CallingHomeAdaptiveCardExtension extends BaseAdaptiveCardEx
 
         const jsonResponse = await res.json();        
 
-        // For demo purposes, randomly pick licensed/unlicensed
-        var randomBoolean = jsonResponse.IsLicensed;
-        //var randomBoolean = Math.random() < 0.5;
-        //const randomBoolean : boolean = false;
+        var randomBoolean : boolean = true;
+
+        if (this.properties.randomLicensed) {
+          // For demo purposes, randomly pick licensed/unlicensed as returned by the licence check server call
+          randomBoolean = jsonResponse.IsLicensed;
+          //var randomBoolean = Math.random() < 0.5;
+          //const randomBoolean : boolean = false;
+        }
 
         if (randomBoolean) {
 
@@ -136,6 +142,7 @@ export default class CallingHomeAdaptiveCardExtension extends BaseAdaptiveCardEx
             tokens.setAccessToken(jsonResponse.AccessToken);
 
             // Call XYZ API to retrieve needed data
+            this.setState({ description : "Calling orders api..."});
             await this.getOrders(jsonResponse.AccessToken);
 
             // Licensed: Store the json in the card state
@@ -188,7 +195,6 @@ export default class CallingHomeAdaptiveCardExtension extends BaseAdaptiveCardEx
       const requestHeaders: Headers = new Headers();  
       requestHeaders.append('Content-type', 'application/json');  
       requestHeaders.append('Cache-Control', 'no-cache');  
-      //For an OAuth token  
       requestHeaders.append('Authorization', 'Bearer ' + accessToken);  
   
       const httpClientOptions: IHttpClientOptions = {  

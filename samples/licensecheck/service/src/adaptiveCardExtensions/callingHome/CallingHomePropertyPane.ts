@@ -1,4 +1,4 @@
-import { IPropertyPaneConfiguration, PropertyPaneTextField } from '@microsoft/sp-property-pane';
+import { IPropertyPaneConfiguration, PropertyPaneCheckbox, PropertyPaneTextField } from '@microsoft/sp-property-pane';
 import * as strings from 'CallingHomeAdaptiveCardExtensionStrings';
 
 export class CallingHomePropertyPane {
@@ -26,6 +26,9 @@ export class CallingHomePropertyPane {
                 }),
                 PropertyPaneTextField('appId', {
                   label: 'Azure AD Application ID'
+                }),
+                PropertyPaneCheckbox('randomLicensed', {
+                  text: 'Use random licensed check'
                 })
               ]
             }

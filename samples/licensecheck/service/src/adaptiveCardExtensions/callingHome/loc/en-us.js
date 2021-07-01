@@ -9,7 +9,7 @@ define([], function() {
     "SubTitle": "Quick View",
     "Description": "Create your SPFx Adaptive Card Extension solution!",
     "PrimaryText": "License check demo",
-    "QuickViewButton": "XYZ",
+    "QuickViewButton": "Show orders",
 
     "Licensed": "You're licensed to use XYZ",
     "NotLicensed": "Sorry, you've no license for XYZ",

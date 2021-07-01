@@ -25,7 +25,8 @@
       "description": "Checking licenses...",
       "iconProperty": "", // Default to sharepointlogo
       "apiAbsUrl": "https://vivaconnections.azurewebsites.net/",
-      "appId": "0c72c790-ce9e-422c-a17f-9e6607a0ba58"
+      "appId": "0c72c790-ce9e-422c-a17f-9e6607a0ba58",
+      "randomLicensed": false
     }
   }]
 }
